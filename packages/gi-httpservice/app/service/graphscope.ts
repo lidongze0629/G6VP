@@ -161,10 +161,9 @@ class GraphComputeService extends Service {
   /**
    * Private function to handle table result
    * @param client: gremlin client
-   * @param tableResult: any[]
    * @param value: gremlin data structure
    */
-  async handleTableResult(client, tableResult, value) {
+  async handleTableResult(client, value) {
     const entries = value.entries();
     const currentObj = {} as any;
     for (const current of entries) {
@@ -177,11 +176,13 @@ class GraphComputeService extends Service {
         currentObj[key] = v;
       } else if (v instanceof gremlin.structure.Vertex || v instanceof gremlin.structure.Edge) {
         currentObj[key] = await this.jsonGraphData(client, v);
+      } else if (v instanceof Map) {
+        currentObj[key] = await this.handleTableResult(client, v);
       } else {
         currentObj[key] = JSON.stringify(v);
       }
     }
-    tableResult.push(currentObj);
+    return currentObj;
   }
 
   /**
@@ -291,7 +292,7 @@ class GraphComputeService extends Service {
           }
         }
         // also set tableResult
-        await this.handleTableResult(client, tableResult, value);
+        tableResult.push(await this.handleTableResult(client, value));
       } else {
         mode = 'table';
         if (typeof value === 'number' || typeof value === 'string' || value instanceof BigNumber) {
@@ -300,7 +301,7 @@ class GraphComputeService extends Service {
         } else {
           // e.g. `valueMap()`, `elementMap()`, `expandPath()`
           // https://graphscope.io/docs/interactive_engine/tinkerpop/supported_gremlin_steps
-          await this.handleTableResult(client, tableResult, value);
+          tableResult.push(await this.handleTableResult(client, value));
         }
       }
     }
