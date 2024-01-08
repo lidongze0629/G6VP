@@ -99,6 +99,8 @@ class GraphComputeService extends Service {
         }
       }
       obj.data = elementProp;
+    } else {
+      obj.data = {}
     }
     // edge also need src/dst information
     if (value instanceof gremlin.structure.Edge) {
@@ -307,15 +309,15 @@ class GraphComputeService extends Service {
     }
 
     // query properties in batch
-    if (mode === 'graph') {
-      // now graphscope only support to query properties of vertex
-      const vertexPropertyMap = await this.queryNodesProperties(client, [...nodeIds]);
-      for (let key in vertexPropertyMap) {
-        if (key in nodeItemsMapping) {
-          nodeItemsMapping[key].data = vertexPropertyMap[key];
-        }
-      }
-    }
+    /*if (mode === 'graph') {*/
+      //// now graphscope only support to query properties of vertex
+      //const vertexPropertyMap = await this.queryNodesProperties(client, [...nodeIds]);
+      //for (let key in vertexPropertyMap) {
+        //if (key in nodeItemsMapping) {
+          //nodeItemsMapping[key].data = vertexPropertyMap[key];
+        //}
+      //}
+    /*}*/
 
     // close gremlin client
     closeGremlinClient(client);
